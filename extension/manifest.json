@@ -1,0 +1,50 @@
+{
+  "manifest_version": 3,
+  "name": "DSA Sync",
+  "version": "1.0.0",
+  "description": "Universal Coding Platform Tracker & GitHub Auto-Organizer",
+  "permissions": [
+    "storage",
+    "tabs",
+    "scripting",
+    "notifications"
+  ],
+  "host_permissions": [
+    "https://leetcode.com/*",
+    "https://*.leetcode.com/*",
+    "https://www.geeksforgeeks.org/*",
+    "https://*.geeksforgeeks.org/*",
+    "https://codeforces.com/*",
+    "https://codechef.com/*",
+    "https://atcoder.jp/*",
+    "https://www.hackerrank.com/*",
+    "https://www.hackerearth.com/*",
+    "https://www.interviewbit.com/*",
+    "https://www.codingninjas.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://leetcode.com/*",
+        "https://*.leetcode.com/*",
+        "https://www.geeksforgeeks.org/*",
+        "https://*.geeksforgeeks.org/*",
+        "https://codeforces.com/*",
+        "https://codechef.com/*",
+        "https://atcoder.jp/*",
+        "https://www.hackerrank.com/*",
+        "https://www.hackerearth.com/*",
+        "https://www.interviewbit.com/*",
+        "https://www.codingninjas.com/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

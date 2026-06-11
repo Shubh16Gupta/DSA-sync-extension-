@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DSA Sync Popup</title>
+  <style>
+    :root {
+      --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+      --accent: linear-gradient(135deg, #6366f1 0%, #4f70e5 100%);
+      --glass-bg: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 320px;
+      padding: 16px;
+      background: var(--bg-gradient);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: var(--text-main);
+      overflow-x: hidden;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #a5b4fc 0%, #818cf8 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: 0.5px;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .status-connected .status-dot {
+      background-color: #10b981;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    .status-disconnected .status-dot {
+      background-color: #ef4444;
+      box-shadow: 0 0 8px #ef4444;
+    }
+
+    .card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 14px;
+      backdrop-filter: blur(10px);
+    }
+
+    .card-title {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-sub);
+      margin-bottom: 8px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .stat-box {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .stat-val {
+      font-size: 20px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 2px;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--text-sub);
+    }
+
+    .repo-link {
+      font-size: 12px;
+      color: #a5b4fc;
+      text-decoration: none;
+      word-break: break-all;
+      display: inline-block;
+      margin-top: 4px;
+    }
+
+    .repo-link:hover {
+      text-decoration: underline;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 11px;
+      color: var(--text-sub);
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 8px 10px;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--glass-border);
+      border-radius: 6px;
+      color: #ffffff;
+      font-size: 12px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .input-field:focus {
+      border-color: #6366f1;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 10px;
+      background: var(--accent);
+      border: none;
+      border-radius: 8px;
+      color: white;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .btn-secondary {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      color: #ffffff;
+      margin-top: 8px;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: none;
+    }
+
+    .footer {
+      text-align: center;
+      font-size: 10px;
+      color: var(--text-sub);
+      margin-top: 16px;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="title">DSA Sync</div>
+    <div id="status-badge" class="status-badge status-disconnected">
+      <span class="status-dot"></span>
+      <span id="status-text">Offline</span>
+    </div>
+  </div>
+
+  <!-- Connected State -->
+  <div id="connected-state" class="hidden">
+    <div class="card">
+      <div class="card-title">User Profile</div>
+      <div style="font-size: 14px; font-weight: 600; margin-bottom: 2px;" id="username-display">-</div>
+      <div style="font-size: 11px; color: var(--text-sub);">Repository:</div>
+      <a href="#" id="repo-display" target="_blank" class="repo-link">Select repository...</a>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Quick Stats</div>
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-val" id="solved-val">0</div>
+          <div class="stat-label">Total Solved</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-val" id="streak-val">0d</div>
+          <div class="stat-label">Current Streak</div>
+        </div>
+      </div>
+    </div>
+
+    <button id="open-dashboard-btn" class="btn">
+      <span>Dashboard</span>
+      <span>↗</span>
+    </button>
+    
+    <button id="disconnect-btn" class="btn btn-secondary">
+      Disconnect Account
+    </button>
+  </div>
+
+  <!-- Disconnected State -->
+  <div id="disconnected-state">
+    <div class="card">
+      <div class="card-title">Configuration</div>
+      
+      <div class="form-group">
+        <label class="form-label" for="backend-url-input">Server Address</label>
+        <input type="text" id="backend-url-input" class="input-field" value="http://localhost:5000">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="token-input">Authentication Token</label>
+        <input type="password" id="token-input" class="input-field" placeholder="Paste JWT token here...">
+      </div>
+      
+      <button id="save-config-btn" class="btn">
+        Save & Connect
+      </button>
+    </div>
+
+    <button id="open-dashboard-login-btn" class="btn btn-secondary">
+      Open Dashboard to Login
+    </button>
+  </div>
+
+  <div class="footer">
+    DSA Sync Extension &bull; v1.0.0
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
